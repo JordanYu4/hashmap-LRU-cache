@@ -10,16 +10,16 @@ class HashSet
 
   def insert(key)
     resize! if count == num_buckets
-    self[key] << key
+    @store[key.hash % num_buckets] << key
     self.count = count + 1
   end
 
   def include?(key)
-    !self[key].empty?
+    self[key].include?(key)
   end
 
   def remove(key)
-    @store[(key - 1) % num_buckets] = []
+    @store[key.hash % num_buckets] = []
     self.count = count - 1
   end
 
@@ -27,8 +27,8 @@ class HashSet
 
   attr_writer :count
 
-  def [](num)
-    @store[(num - 1) % num_buckets]
+  def [](key)
+    @store[key.hash % num_buckets]
   end
 
   def num_buckets
@@ -38,7 +38,9 @@ class HashSet
   def resize!
     new_store = Array.new(num_buckets * 2) { Array.new }
     @store.each do |arr| 
-      new_store[(arr.first - 1) % new_store.length] << arr.first
+      arr.each do |key|
+        new_store[key.hash % num_buckets] << key
+      end
     end
     @store = new_store
   end
